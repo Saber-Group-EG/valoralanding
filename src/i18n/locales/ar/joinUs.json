@@ -81,6 +81,20 @@
     "termsAccepted": "شروط تمت الموافقه عليها",
     "ready": "جاهز"
   },
+  "checkApplicationStatus": "التحقق من حالة الطلب",
+  "checkStatusSubtitle": "تحقق مما إذا كنت قد قدمت طلبًا سابقًا باستخدام البريد الإلكتروني ورقم الهاتف.",
+  "checkStatusHint": "أدخل نفس البريد الإلكتروني ورقم الهاتف اللذين استخدمتهما في طلبك السابق.",
+  "check": "تحقق",
+  "checking": "جارٍ التحقق...",
+  "emailPhoneRequired": "يرجى إدخال البريد الإلكتروني ورقم الهاتف.",
+  "companyUnavailable": "بيانات الشركة غير متاحة الآن. يرجى المحاولة مرة أخرى بعد قليل.",
+  "alreadyAppliedWithPositions": "لقد قدمت من قبل على: {{positions}}.",
+  "alreadyApplied": "لقد قدمت طلبًا من قبل.",
+  "notAppliedYet": "لم يتم العثور على طلب سابق بهذه البيانات.",
+  "position": "الوظيفة",
+  "company": "الشركة",
+  "applicationDate": "تاريخ التقديم",
+  "statusCheckFailed": "تعذر التحقق من حالة الطلب الآن.",
   "addMore": "إضافة المزيد",
   "remove": "إزالة"
 }

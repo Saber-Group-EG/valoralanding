@@ -371,19 +371,21 @@ const ProjectDetail = () => {
         const routeSlugRaw = String(slug || "");
 
         const foundProject = rawProjects.find((p) => {
-          const id = String(p._id || "").toLowerCase();
+          const id = String(p._id || "");
+          const idLower = id.toLowerCase();
           const rawSlug = String(p.slug || "").toLowerCase();
           const decodedSlug = String(decodeURIComponent(p.slug || "")).toLowerCase();
           const enSlug = String(getEnSlug(p) || "").toLowerCase();
           const nameSlug = String(slugify(getLocalizedText(p.name) || p.name?.en || p.title || "")).toLowerCase();
 
+          // Priority: ID match first (exact and case-insensitive), then slug matches, then name matches
           return (
-            id === routeSlug ||
+            id === routeSlugRaw ||
+            idLower === routeSlug ||
             rawSlug === routeSlug ||
             decodedSlug === routeSlug ||
             enSlug === routeSlug ||
             nameSlug === routeSlug ||
-            id === routeSlugRaw ||
             rawSlug === routeSlugRaw ||
             enSlug === routeSlugRaw
           );

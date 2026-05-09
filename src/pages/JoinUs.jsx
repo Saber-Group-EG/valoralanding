@@ -116,6 +116,24 @@ const JoinUs = () => {
             {t('joinUs:subtitle') ||
               'Explore exciting career opportunities and become part of our growing team. We are looking for talented individuals to help shape the future of real estate.'}
           </p>
+
+          <div className="mt-8 flex justify-center">
+            <button
+              type="button"
+              onClick={() => navigate('/join-us/check-application')}
+              className="btn-outline inline-flex items-center gap-2"
+            >
+              <span>{t('joinUs:checkApplicationStatus') || 'Check Application Status'}</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Loading State */}
@@ -151,9 +169,9 @@ const JoinUs = () => {
         {/* Error State */}
         {error && !loading && (
           <div className="text-center py-16">
-            <div className="w-24 h-24 mx-auto mb-6 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center">
+            <div className="w-24 h-24 mx-auto mb-6 bg-light-100 dark:bg-dark-800 rounded-full flex items-center justify-center">
               <svg
-                className="w-12 h-12 text-red-500"
+                className="w-12 h-12 text-light-400 dark:text-dark-400"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -162,22 +180,17 @@ const JoinUs = () => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                 />
               </svg>
             </div>
             <h3 className="text-2xl font-bold text-light-900 dark:text-white mb-4">
-              {t('joinUs:errorLoading') || 'Error Loading Positions'}
+              {t('joinUs:noPositions') || 'No available jobs'}
             </h3>
-            <p className="text-light-600 dark:text-light-400 max-w-md mx-auto mb-8">
-              {error}
+            <p className="text-light-600 dark:text-light-400 max-w-md mx-auto">
+              {t('joinUs:noPositionsDesc') ||
+                'There are no available jobs at the moment. Please check back later for new opportunities.'}
             </p>
-            <button
-              onClick={() => dispatch(getJobPositions(true))}
-              className="btn-primary"
-            >
-              {t('joinUs:retry') || 'Retry'}
-            </button>
           </div>
         )}
 

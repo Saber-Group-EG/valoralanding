@@ -13,6 +13,7 @@ import Unit from "./pages/Unit";
 import Contact from "./pages/Contact";
 import JoinUs from "./pages/JoinUs";
 import JobApplicationForm from "./pages/JobApplicationForm";
+import CheckPreviousApplication from "./pages/checkjob";
 import NotFound from "./pages/NotFound";
 
 import "./index.css";
@@ -33,6 +34,7 @@ function App() {
               <Route path="unit/:unitId" element={<Unit />} />
               <Route path="contact" element={<Contact />} />
               <Route path="join-us" element={<JoinUs />} />
+              <Route path="join-us/check-application" element={<CheckPreviousApplication />} />
               <Route path="join-us/:slug" element={<JobApplicationForm />} />
               <Route path="*" element={<NotFound />} />
             </Route>

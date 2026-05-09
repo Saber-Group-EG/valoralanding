@@ -134,6 +134,15 @@
     line-height: 1;
   }
 
+  /* Keep location text clear of overlaid payment badges */
+  .project-location--with-badges-rtl {
+    padding-left: 11rem;
+  }
+
+  .project-location--with-badges-ltr {
+    padding-right: 11rem;
+  }
+
   /* Badges refactor: clear, independent classes for readability
      - container: .badges-container
      - direction helpers: .badges--rtl / .badges--ltr
@@ -204,6 +213,14 @@
   /* Mobile overrides: ensure Arabic gets smaller fonts at narrow widths
      Use higher-specificity selectors when needed to override utilities. */
   @media (max-width: 768px) {
+    .project-location--with-badges-rtl {
+      padding-left: 8.5rem;
+    }
+
+    .project-location--with-badges-ltr {
+      padding-right: 8.5rem;
+    }
+
     /* Slight overlap so badges barely touch the image above */
     .badges-container { left: 0.5rem; top: 5.75px; }
     .badge { width: 68px; height: 96px; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; transform: translateY(-6px); }

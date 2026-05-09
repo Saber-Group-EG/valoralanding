@@ -81,6 +81,20 @@
     "termsAccepted": "terms accepted",
     "ready": "Ready"
   },
+  "checkApplicationStatus": "Check Application Status",
+  "checkStatusSubtitle": "See whether you already submitted an application using your email and phone number.",
+  "checkStatusHint": "Enter the same email and phone number you used in your previous application.",
+  "check": "Check",
+  "checking": "Checking...",
+  "emailPhoneRequired": "Please enter both email and phone number.",
+  "companyUnavailable": "Company data is not available right now. Please try again shortly.",
+  "alreadyAppliedWithPositions": "You already applied before for: {{positions}}.",
+  "alreadyApplied": "You have already applied before.",
+  "notAppliedYet": "No previous application was found with this information.",
+  "position": "Position",
+  "company": "Company",
+  "applicationDate": "Application Date",
+  "statusCheckFailed": "Unable to check application status right now.",
   "addMore": "Add More",
   "remove": "Remove"
 }

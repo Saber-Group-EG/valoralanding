@@ -645,7 +645,10 @@ const   OurProjects = () => {
 // Project Card Component
 const ProjectCard = ({ project, isArabic }) => {
   const { t } = useTranslation();
-  const linkSlug = getEnSlug({ slug: project.slug, _id: project.id, name: { en: project.title } , title: project.title });
+  // Use project ID as the primary slug to ensure uniqueness across all projects
+  const linkSlug = project.id;
+  const hasPaymentBadges =
+    project.depositPercent != null || project.numberOfInstallments != null;
   return (
     <Link to={`/projects/${linkSlug}`} className="block">
       <div className="group relative overflow-hidden rounded-2xl bg-white dark:bg-dark-800 shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-[1.02]">
@@ -691,7 +694,7 @@ const ProjectCard = ({ project, isArabic }) => {
         {/* Content */}
         <div className="p-6 relative project-content">
           {/* Payment Badges */}
-          {(project.depositPercent != null || project.numberOfInstallments != null) && (
+          {hasPaymentBadges && (
             <div className={`badges-container  ${isArabic ? "badges--rtl" : "badges--ltr badges--en"}`}>
               {/* Arabic badges */}
               {isArabic && project.depositPercent != null && (
@@ -744,7 +747,15 @@ const ProjectCard = ({ project, isArabic }) => {
             {project.title}
           </h3>
 
-          <div className="flex items-center gap-2 text-light-600 dark:text-light-400 mb-4 project-location">
+          <div
+            className={`flex items-center gap-2 text-light-600 dark:text-light-400 mb-4 project-location ${
+              hasPaymentBadges
+                ? isArabic
+                  ? "project-location--with-badges-rtl"
+                  : "project-location--with-badges-ltr"
+                : ""
+            }`}
+          >
             <svg
               className="w-4 h-4"
               fill="none"

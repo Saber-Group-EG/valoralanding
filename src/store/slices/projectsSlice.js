@@ -55,7 +55,9 @@ const projectsSlice = createSlice({
       })
       .addCase(getProjects.fulfilled, (state, action) => {
         state.loading = false;
-        state.rawProjects = action.payload;
+        state.rawProjects = (action.payload || []).filter(
+          (project) => project?.isVisible === true
+        );
         state.error = null;
       })
       .addCase(getProjects.rejected, (state, action) => {
