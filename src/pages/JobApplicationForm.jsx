@@ -1008,9 +1008,7 @@ const JobApplicationForm = () => {
     oldestAllowedBirthDate.setFullYear(today.getFullYear() - 100);
 
     const schemaShape = {
-      agreedToTerms: Yup.boolean()
-        .oneOf([true], t('joinUs:acceptTerms') || 'You must accept the terms')
-        .required(t('joinUs:acceptTerms') || 'You must accept the terms'),
+      agreedToTerms: Yup.boolean(),
       customResponses: Yup.object(),
     };
 
@@ -3738,7 +3736,6 @@ const JobApplicationForm = () => {
                                             Object.values(next).every(Boolean)
                                           );
                                         }}
-                                        required
                                         sx={{
                                           color: 'var(--color-primary-500)',
                                           padding: '4px',
@@ -3868,16 +3865,7 @@ const JobApplicationForm = () => {
                             })()}
                           </div>
 
-                          {errors.agreedToTerms && touched.agreedToTerms && (
-                            <FormHelperText
-                              error                              sx={{
-                                textAlign: isArabic ? 'right' : 'left',
-                                mt: 1,
-                              }}
-                            >
-                              {errors.agreedToTerms}
-                            </FormHelperText>
-                          )}
+
                         </div>
                       </div>
                     )}
