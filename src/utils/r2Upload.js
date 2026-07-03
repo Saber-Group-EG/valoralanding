@@ -37,6 +37,7 @@ export async function uploadToR2(file, folder = 'JobApplications') {
           }
         };
 
+        
         xhr.onerror = () => reject(new Error('Network error'));
         xhr.ontimeout = () => reject(new Error('Upload timed out'));
         xhr.send(file);
