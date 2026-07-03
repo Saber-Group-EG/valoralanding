@@ -783,9 +783,16 @@ const JobApplicationForm = () => {
               return true;
             }
           )
-          .email(
+          .test(
+            'invalid-email-format',
             t('joinUs:invalidEmail') ||
-              'Please enter a valid email address (e.g., name@example.com)'
+              'Email format is not recognized. Check for invisible characters or incorrect keyboard layout.',
+            (val) => {
+              if (!val) return true;
+              const emailRegex =
+                /^[A-Z0-9\u0600-\u06FF._%+\-']+@[A-Z0-9\u0600-\u06FF.\-]+\.[A-Z]{2,}$/i;
+              return emailRegex.test(val);
+            }
           );
         if (isRequired) schema = schema.required(requiredMsg);
         return schema;
@@ -1044,9 +1051,16 @@ const JobApplicationForm = () => {
             return true;
           }
         )
-        .email(
+        .test(
+          'invalid-email-format',
           t('joinUs:invalidEmail') ||
-            'Please enter a valid email address (e.g., name@example.com)'
+            'Email format is not recognized. Check for invisible characters or incorrect keyboard layout.',
+          (val) => {
+            if (!val) return true;
+            const emailRegex =
+              /^[A-Z0-9\u0600-\u06FF._%+\-']+@[A-Z0-9\u0600-\u06FF.\-]+\.[A-Z]{2,}$/i;
+            return emailRegex.test(val);
+          }
         );
       if (isBaseFieldRequired('email')) {
         emailSchema = emailSchema.required(
