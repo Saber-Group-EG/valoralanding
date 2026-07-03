@@ -14,6 +14,7 @@ export async function uploadToR2(file, folder = 'JobApplications') {
       );
       const { presignedUrl, publicUrl } = data;
 
+      
       const uploadResult = await new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
         xhr.open('PUT', presignedUrl);
