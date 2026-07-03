@@ -721,9 +721,72 @@ const JobApplicationForm = () => {
 
     switch (fieldDefinition?.inputType) {
       case 'email': {
-        let schema = createTrimmedStringSchema().email(
-          t('joinUs:invalidEmail') || 'Please enter a valid email address'
-        );
+        let schema = createTrimmedStringSchema()
+          .transform((value) =>
+            typeof value === 'string'
+              ? value.replace(
+                  /[\u200B-\u200F\u2028-\u202F\u2060-\u2064\uFEFF\u00AD\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g,
+                  ''
+                )
+              : value
+          )
+          .test(
+            'has-at',
+            t('joinUs:emailMissingAt') || 'Email must contain an @ symbol',
+            (val) => {
+              if (!val) return true;
+              return val.includes('@');
+            }
+          )
+          .test(
+            'has-local-part',
+            t('joinUs:emailMissingLocalPart') ||
+              'Email must have a name before @',
+            (val) => {
+              if (!val) return true;
+              const atIndex = val.indexOf('@');
+              if (atIndex <= 0) return true;
+              return val.slice(0, atIndex).trim().length > 0;
+            }
+          )
+          .test(
+            'has-domain',
+            t('joinUs:emailMissingDomain') ||
+              'Email must have a domain after @',
+            (val) => {
+              if (!val) return true;
+              const atIndex = val.indexOf('@');
+              if (atIndex < 0) return true;
+              return val.slice(atIndex + 1).trim().length > 0;
+            }
+          )
+          .test(
+            'has-dot-in-domain',
+            t('joinUs:emailMissingDot') ||
+              'Email domain must contain a dot (e.g., gmail.com)',
+            (val) => {
+              if (!val) return true;
+              const atIndex = val.indexOf('@');
+              if (atIndex < 0) return true;
+              const domain = val.slice(atIndex + 1);
+              return domain.includes('.');
+            }
+          )
+          .test(
+            'no-arabic-punctuation',
+            t('joinUs:emailArabicPunctuation') ||
+              'Email contains Arabic punctuation (٫) instead of dot (.)',
+            (val) => {
+              if (!val) return true;
+              if (val.includes('\u066B')) return false;
+              if (val.includes('\u066C')) return false;
+              return true;
+            }
+          )
+          .email(
+            t('joinUs:invalidEmail') ||
+              'Please enter a valid email address (e.g., name@example.com)'
+          );
         if (isRequired) schema = schema.required(requiredMsg);
         return schema;
       }
@@ -919,9 +982,72 @@ const JobApplicationForm = () => {
     }
 
     if (isBaseFieldVisible('email')) {
-      let emailSchema = createTrimmedStringSchema().email(
-        t('joinUs:invalidEmail') || 'Invalid email'
-      );
+      let emailSchema = createTrimmedStringSchema()
+        .transform((value) =>
+          typeof value === 'string'
+            ? value.replace(
+                /[\u200B-\u200F\u2028-\u202F\u2060-\u2064\uFEFF\u00AD\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F]/g,
+                ''
+              )
+            : value
+        )
+        .test(
+          'has-at',
+          t('joinUs:emailMissingAt') || 'Email must contain an @ symbol',
+          (val) => {
+            if (!val) return true;
+            return val.includes('@');
+          }
+        )
+        .test(
+          'has-local-part',
+          t('joinUs:emailMissingLocalPart') ||
+            'Email must have a name before @',
+          (val) => {
+            if (!val) return true;
+            const atIndex = val.indexOf('@');
+            if (atIndex <= 0) return true;
+            return val.slice(0, atIndex).trim().length > 0;
+          }
+        )
+        .test(
+          'has-domain',
+          t('joinUs:emailMissingDomain') ||
+            'Email must have a domain after @',
+          (val) => {
+            if (!val) return true;
+            const atIndex = val.indexOf('@');
+            if (atIndex < 0) return true;
+            return val.slice(atIndex + 1).trim().length > 0;
+          }
+        )
+        .test(
+          'has-dot-in-domain',
+          t('joinUs:emailMissingDot') ||
+            'Email domain must contain a dot (e.g., gmail.com)',
+          (val) => {
+            if (!val) return true;
+            const atIndex = val.indexOf('@');
+            if (atIndex < 0) return true;
+            const domain = val.slice(atIndex + 1);
+            return domain.includes('.');
+          }
+        )
+        .test(
+          'no-arabic-punctuation',
+          t('joinUs:emailArabicPunctuation') ||
+            'Email contains Arabic punctuation (٫) instead of dot (.)',
+          (val) => {
+            if (!val) return true;
+            if (val.includes('\u066B')) return false;
+            if (val.includes('\u066C')) return false;
+            return true;
+          }
+        )
+        .email(
+          t('joinUs:invalidEmail') ||
+            'Please enter a valid email address (e.g., name@example.com)'
+        );
       if (isBaseFieldRequired('email')) {
         emailSchema = emailSchema.required(
           `${t('joinUs:email') || 'Email'} ${t('joinUs:isRequired') || 'is required'}`
