@@ -16,6 +16,7 @@ import { useTranslation } from '../i18n/hooks/useTranslation';
 import { getJobPositions } from '../store/slices/jobPositionsSlice';
 import valoraLogo from '../assets/logos/INSIDE LOGO.png'; // Keep the original import
 import { getFullUrl, getDefaultOgImage, SITE_NAME } from '../utils/ogMeta';
+import { uploadToR2 } from '../utils/r2Upload';
 import Footer from '../components/footer';
 
 const JobApplicationForm = () => {
@@ -284,181 +285,7 @@ const JobApplicationForm = () => {
   };
   // -------------------------------------------------------
 
-  const leftRotate32 = (value, shift) =>
-    ((value << shift) | (value >>> (32 - shift))) >>> 0;
 
-  const sha1FallbackHex = (input) => {
-    const messageBytes = new TextEncoder().encode(input);
-    const originalBitLength = messageBytes.length * 8;
-
-    const withOne = new Uint8Array(messageBytes.length + 1);
-    withOne.set(messageBytes);
-    withOne[messageBytes.length] = 0x80;
-
-    const paddedLength = Math.ceil((withOne.length + 8) / 64) * 64;
-    const padded = new Uint8Array(paddedLength);
-    padded.set(withOne);
-
-    const view = new DataView(padded.buffer);
-    const highBits = Math.floor(originalBitLength / 0x100000000);
-    const lowBits = originalBitLength >>> 0;
-    view.setUint32(paddedLength - 8, highBits, false);
-    view.setUint32(paddedLength - 4, lowBits, false);
-
-    let h0 = 0x67452301;
-    let h1 = 0xefcdab89;
-    let h2 = 0x98badcfe;
-    let h3 = 0x10325476;
-    let h4 = 0xc3d2e1f0;
-
-    const words = new Uint32Array(80);
-
-    for (let blockStart = 0; blockStart < paddedLength; blockStart += 64) {
-      for (let i = 0; i < 16; i += 1) {
-        words[i] = view.getUint32(blockStart + i * 4, false);
-      }
-
-      for (let i = 16; i < 80; i += 1) {
-        words[i] = leftRotate32(
-          words[i - 3] ^ words[i - 8] ^ words[i - 14] ^ words[i - 16],
-          1
-        );
-      }
-
-      let a = h0;
-      let b = h1;
-      let c = h2;
-      let d = h3;
-      let e = h4;
-
-      for (let i = 0; i < 80; i += 1) {
-        let f;
-        let k;
-
-        if (i < 20) {
-          f = (b & c) | (~b & d);
-          k = 0x5a827999;
-        } else if (i < 40) {
-          f = b ^ c ^ d;
-          k = 0x6ed9eba1;
-        } else if (i < 60) {
-          f = (b & c) | (b & d) | (c & d);
-          k = 0x8f1bbcdc;
-        } else {
-          f = b ^ c ^ d;
-          k = 0xca62c1d6;
-        }
-
-        const temp = (leftRotate32(a, 5) + f + e + k + words[i]) >>> 0;
-        e = d;
-        d = c;
-        c = leftRotate32(b, 30);
-        b = a;
-        a = temp;
-      }
-
-      h0 = (h0 + a) >>> 0;
-      h1 = (h1 + b) >>> 0;
-      h2 = (h2 + c) >>> 0;
-      h3 = (h3 + d) >>> 0;
-      h4 = (h4 + e) >>> 0;
-    }
-
-    return [h0, h1, h2, h3, h4]
-      .map((num) => num.toString(16).padStart(8, '0'))
-      .join('');
-  };
-
-  const buildSha1Hex = async (input) => {
-    const subtle = globalThis.crypto?.subtle;
-
-    if (subtle?.digest) {
-      const data = new TextEncoder().encode(input);
-      const hashBuffer = await subtle.digest('SHA-1', data);
-      return Array.from(new Uint8Array(hashBuffer))
-        .map((byte) => byte.toString(16).padStart(2, '0'))
-        .join('');
-    }
-
-    return sha1FallbackHex(input);
-  };
-
-  // --- Improved uploadToCloudinary with retries and progress from first code ---
-  const uploadToCloudinary = async (file, retries = 3, delayMs = 1000) => {
-    const CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-    const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-
-    if (!CLOUD_NAME || !UPLOAD_PRESET) {
-      throw new Error('Cloudinary credentials not configured');
-    }
-
-    const isImage = file.type.startsWith('image/');
-    const uploadUrl = isImage
-      ? `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`
-      : `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/raw/upload`;
-
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', UPLOAD_PRESET);
-
-    for (let attempt = 1; attempt <= retries; attempt++) {
-      try {
-        const response = await axios.post(uploadUrl, formData, {
-          timeout: 180000, // 60 second timeout
-          onUploadProgress: (progressEvent) => {
-            const titleEl = document.querySelector('.swal2-title');
-            if (!titleEl) return;
-
-            const label = isImage
-              ? t('joinUs:uploadingPhoto') || 'Uploading photo'
-              : t('joinUs:uploadingCV') || 'Uploading CV';
-
-            // progressEvent.total can be 0 or undefined if server omits Content-Length
-            if (progressEvent.total && progressEvent.total > 0) {
-              const percent = Math.round(
-                (progressEvent.loaded * 100) / progressEvent.total
-              );
-              titleEl.textContent = `${label}... ${percent}%`;
-            } else {
-              // Fallback: show uploaded MB instead of percentage
-              const uploadedMB = (progressEvent.loaded / (1024 * 1024)).toFixed(
-                1
-              );
-              titleEl.textContent = `${label}... ${uploadedMB} MB`;
-            }
-          },
-        });
-        return response.data.secure_url;
-      } catch (error) {
-        const isLastAttempt = attempt === retries;
-        const isNetworkError = !error.response; // no response = network/timeout issue
-
-        if (isNetworkError && !isLastAttempt) {
-          // Wait before retrying (1s, 2s, 4s...)
-          await new Promise((resolve) =>
-            setTimeout(resolve, delayMs * attempt)
-          );
-          continue;
-        }
-
-        const serverMessage = getApiErrorMessage(
-          error,
-          error?.message || 'File upload failed'
-        );
-        throw new Error(serverMessage);
-      }
-    }
-  };
-  // --------------------------------------------------------------------------
-
-  const convertFileToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    });
-  };
 
   const hasAllowedExtension = (fileName, extensions) => {
     const normalizedName = (fileName || '').toLowerCase();
@@ -1596,31 +1423,35 @@ const JobApplicationForm = () => {
             validFormikGroups.length > 0 ? validFormikGroups : validStateGroups;
         });
 
-      // Upload files to Cloudinary first
+      // Upload files to R2 via presigned URLs (parallel)
       let profilePhotoUrl = '';
       let cvUrl = '';
 
+      const uploadTasks = [];
+
       if (isBaseFieldVisible('profilePhoto') && values.profilePhotoFile) {
-        Swal.fire({
-          title: t('joinUs:uploadingPhoto') || 'Uploading photo...',
-          allowOutsideClick: false,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-        });
-        profilePhotoUrl = await uploadToCloudinary(values.profilePhotoFile);
-        Swal.close();
+        uploadTasks.push(
+          uploadToR2(values.profilePhotoFile, 'JobApplications')
+            .then(url => { profilePhotoUrl = url; })
+        );
       }
 
       if (isBaseFieldVisible('cvFilePath') && values.cvFile) {
+        uploadTasks.push(
+          uploadToR2(values.cvFile, 'JobApplications')
+            .then(url => { cvUrl = url; })
+        );
+      }
+
+      if (uploadTasks.length > 0) {
         Swal.fire({
-          title: t('joinUs:uploadingCV') || 'Uploading CV...',
+          title: t('joinUs:uploading') || 'Uploading files...',
           allowOutsideClick: false,
           didOpen: () => {
             Swal.showLoading();
           },
         });
-        cvUrl = await uploadToCloudinary(values.cvFile);
+        await Promise.all(uploadTasks);
         Swal.close();
       }
 
